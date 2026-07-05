@@ -78,7 +78,7 @@ for bbox_, bbox in enumerate(bboxes):
     
     license_plate = img[ymin:ymax, xmin:xmax, :].copy()
     license_plate_gray = cv2.cvtColor(license_plate, cv2.COLOR_BGR2GRAY)
-    _, license_plate_thresh = cv2.threshold(license_plate_gray, 64, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, license_plate_thresh = cv2.threshold(license_plate_gray, 64, 255, cv2.THRESH_BINARY)
 
     output = reader.readtext(license_plate_thresh)
     
@@ -104,7 +104,7 @@ if license_plate is not None:
 
     plt.figure()
     plt.imshow(cv2.cvtColor(license_plate_thresh, cv2.COLOR_BGR2RGB))
-    plt.title("Otsu Thresholded Plate")
+    plt.title("Thresholded Plate")
 else:
     print("No plates detected to display processing stages.")
 

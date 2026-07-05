@@ -100,7 +100,7 @@ git push -f origin main
 Here is a live look at the application executing the end-to-end computer vision pipeline on a test vehicle:
 
 ### 1. Visual Localization & Image Processing Pipeline
-The application draws a targeted bounding box around the detected license plate using YOLOv3, crops it out, scales it to grayscale, and applies Otsu's thresholding to optimize text readability for the OCR parser.
+The application draws a targeted bounding box around the detected license plate using YOLOv3, crops it out, scales it to grayscale, and applies thresholding to optimize text readability for the OCR parser.
 
 ![Detection Pipeline Windows](detection_results.png)
 
