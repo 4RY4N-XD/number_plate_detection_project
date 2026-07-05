@@ -8,11 +8,12 @@ import util
 
 
 # define constants
-model_cfg_path = os.path.join('.', 'model', 'cfg', 'yolov3.cfg')
-model_weights_path = os.path.join('.', 'model', 'weights', 'yolov3.weights')
+model_cfg_path = os.path.join('.', 'model', 'cfg', 'darknet-yolov3.cfg')
+model_weights_path = os.path.join('.', 'model', 'weights', 'model.weights')
 class_names_path = os.path.join('.', 'model', 'class.names')
 
-img_path = './pexels-diana-huggins-615369.jpg'
+
+img_path = r"C:\Users\LENOVO\Downloads\Personalized _ Corporate Gifts Store in Kerala.jpg"
 
 # load class names
 with open(class_names_path, 'r') as f:
@@ -29,7 +30,7 @@ img = cv2.imread(img_path)
 H, W, _ = img.shape
 
 # convert image
-blob = cv2.dnn.blobFromImage(img, 1 / 255, (320, 320), (0, 0, 0), True)
+blob = cv2.dnn.blobFromImage(img, 1 / 255, (416, 416 ), (0, 0, 0), True)
 
 # get detections
 net.setInput(blob)
@@ -65,18 +66,27 @@ bboxes, class_ids, scores = util.NMS(bboxes, class_ids, scores)
 for bbox_, bbox in enumerate(bboxes):
     xc, yc, w, h = bbox
 
-    cv2.putText(img,
-                class_names[class_ids[bbox_]],
-                (int(xc - (w / 2)), int(yc + (h / 2) - 20)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                7,
-                (0, 255, 0),
-                15)
+    
+    # cv2.putText(img,
+    #             class_names[class_ids[bbox_]],
+    #             (int(xc - (w / 2)), int(yc + (h / 2) - 20)),
+    #             cv2.FONT_HERSHEY_SIMPLEX,
+    #             7,
+    #             (0, 255, 0),
+    #             15)
+    
     img = cv2.rectangle(img,
                         (int(xc - (w / 2)), int(yc - (h / 2))),
                         (int(xc + (w / 2)), int(yc + (h / 2))),
                         (0, 255, 0),
                         10)
+    
+    license_plate = img[int(yc - (h / 2)):int(yc + (h / 2)), int(xc - (w / 2)):int(xc + (w / 2)), :].copy()
 
+plt.figure()
 plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+
+plt.figure()
+plt.imshow(cv2.cvtColor(license_plate, cv2.COLOR_BGR2RGB))
+
 plt.show()
