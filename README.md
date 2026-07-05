@@ -91,3 +91,8 @@ Save the file as `README.md`, open your terminal window, and run these synchroni
 git add README.md main.py test2.jpg
 git commit -m "Update README directory tree map and operational guide"
 git push -f origin main
+
+
+![alt text](image.png)
+
+![alt text](image-1.png)
