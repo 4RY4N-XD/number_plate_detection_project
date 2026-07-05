@@ -91,3 +91,20 @@ Save the file as `README.md`, open your terminal window, and run these synchroni
 git add README.md main.py test2.jpg
 git commit -m "Update README directory tree map and operational guide"
 git push -f origin main
+```
+
+---
+
+##  Sample Inference Results
+
+Here is a live look at the application executing the end-to-end computer vision pipeline on a test vehicle:
+
+### 1. Visual Localization & Image Processing Pipeline
+The application draws a targeted bounding box around the detected license plate using YOLOv3, crops it out, scales it to grayscale, and applies Otsu's thresholding to optimize text readability for the OCR parser.
+
+![Detection Pipeline Windows](detection_results.jpg)
+
+### 2. OCR Text Extraction Output
+Once thresholded, the region is processed by EasyOCR, generating character tokens accompanied by individual prediction confidence scores:
+
+![Console Terminal Character Output](terminal_output.png)
