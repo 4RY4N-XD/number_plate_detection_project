@@ -35,19 +35,24 @@ NUMBER_PLATE_DETECTIO...
     ├── tempCodeRunnerFile.py          # Script runner log
     ├── test2.jpg                      # Sample target test image
     └── util.py                        # Output parsing and Non-Maximum Suppression (NMS)
-🛠️ Complete Setup Instructions
+```
+# Complete Setup Instructions
+
+
 1. Clone the Repository
 Open your command prompt or terminal and download the project files:
 
-Bash
+```Bash
 git clone [https://github.com/4RY4N-XD/number_plate_detection_project.git](https://github.com/4RY4N-XD/number_plate_detection_project.git)
 cd yolov3-from-opencv-object-detection
+```
 2. Configure Your Environment & Dependencies
 This project relies on OpenCV 4.x because native parsing support for Darknet format configs and weights has been entirely removed from OpenCV 5.0+. Run this exact installation sequence:
 
-DOS
+```DOS
 "C:\Program Files\Python313\python.exe" -m pip uninstall -y opencv-python opencv-contrib-python opencv-python-headless
 "C:\Program Files\Python313\python.exe" -m pip install opencv-python==4.10.0.84 easyocr numpy matplotlib
+```
 3. Restore the Excluded Model Weights File (Crucial) 
 The network model weights file (model.weights) is approximately 234 MB and has been safely untracked by the local repository's .gitignore rules to keep the codebase clean.
 
@@ -64,17 +69,19 @@ Place your downloaded weights file explicitly in this folder.
 Make sure the file is named exactly: model.weights
 (Absolute Path verification: yolov3-from-opencv-object-detection/model/weights/model.weights)
 
- Running the Inference Application
+# Running the Inference Application
 After placing the weights file into the correct sub-directory, run the detector via your terminal interface:
 
-DOS
+```DOS
 "C:\Program Files\Python313\python.exe" main.py
-🚀 Enabling Hardware/GPU Acceleration
+```
+
+# Enabling Hardware/GPU Acceleration
 If your desktop or laptop setup contains an NVIDIA GPU alongside an active CUDA environment, you can shift the text evaluation workload from your CPU to your graphic processor. Open main.py and ensure the OCR block initialization reads:
 
-Python
+```python
 reader = easyocr.Reader(['en'], gpu=True)
-
+```
 ---
 
 ### How to upload this updated documentation to GitHub now:
