@@ -1,40 +1,38 @@
 import os
-
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-
+import easyocr
 import util
 
-
-# define constants
+# 1. Define constants with universal, relative paths
 model_cfg_path = os.path.join('.', 'model', 'cfg', 'darknet-yolov3.cfg')
 model_weights_path = os.path.join('.', 'model', 'weights', 'model.weights')
 class_names_path = os.path.join('.', 'model', 'class.names')
 
+# FIX: Changed from absolute local Windows path to a clean relative path
+img_path = os.path.join('.', 'test2.jpg') 
 
-img_path = r"C:\Users\LENOVO\Downloads\Personalized _ Corporate Gifts Store in Kerala.jpg"
-
-# load class names
+# Load class names
 with open(class_names_path, 'r') as f:
     class_names = [j[:-1] for j in f.readlines() if len(j) > 2]
     f.close()
 
-# load model
-net = cv2.dnn.readNetFromDarknet(model_cfg_path, model_weights_path)
+# Load model
+net = cv2.dnn.readNet(model_cfg_path, model_weights_path)
 
-# load image
+# Load image
+if not os.path.exists(img_path):
+    raise FileNotFoundError(f"Test image not found at {img_path}. Please make sure 'test2.jpg' is in the root directory.")
 
 img = cv2.imread(img_path)
-
 H, W, _ = img.shape
 
-# convert image
-blob = cv2.dnn.blobFromImage(img, 1 / 255, (416, 416 ), (0, 0, 0), True)
+# Convert image to blob
+blob = cv2.dnn.blobFromImage(img, 1 / 255, (416, 416), (0, 0, 0), True)
 
-# get detections
+# Get detections
 net.setInput(blob)
-
 detections = util.get_outputs(net)
 
 # bboxes, class_ids, confidences
@@ -43,13 +41,9 @@ class_ids = []
 scores = []
 
 for detection in detections:
-    # [x1, x2, x3, x4, x5, x6, ..., x85]
     bbox = detection[:4]
-
     xc, yc, w, h = bbox
     bbox = [int(xc * W), int(yc * H), int(w * W), int(h * H)]
-
-    bbox_confidence = detection[4]
 
     class_id = np.argmax(detection[5:])
     score = np.amax(detection[5:])
@@ -58,35 +52,60 @@ for detection in detections:
     class_ids.append(class_id)
     scores.append(score)
 
-# apply nms
+# Apply NMS
 bboxes, class_ids, scores = util.NMS(bboxes, class_ids, scores)
 
-# plot
+# Initialize EasyOCR reader (Recommended to keep GPU=True if you have CUDA setup)
+reader = easyocr.Reader(['en'], gpu=True)
+
+license_plate = None
+license_plate_gray = None
+license_plate_thresh = None
 
 for bbox_, bbox in enumerate(bboxes):
     xc, yc, w, h = bbox
 
-    
-    # cv2.putText(img,
-    #             class_names[class_ids[bbox_]],
-    #             (int(xc - (w / 2)), int(yc + (h / 2) - 20)),
-    #             cv2.FONT_HERSHEY_SIMPLEX,
-    #             7,
-    #             (0, 255, 0),
-    #             15)
-    
+    # Draw bounding box
     img = cv2.rectangle(img,
                         (int(xc - (w / 2)), int(yc - (h / 2))),
                         (int(xc + (w / 2)), int(yc + (h / 2))),
                         (0, 255, 0),
                         10)
     
-    license_plate = img[int(yc - (h / 2)):int(yc + (h / 2)), int(xc - (w / 2)):int(xc + (w / 2)), :].copy()
+    # Safe boundary cropping
+    ymin, ymax = max(0, int(yc - (h / 2))), min(H, int(yc + (h / 2)))
+    xmin, xmax = max(0, int(xc - (w / 2))), min(W, int(xc + (w / 2)))
+    
+    license_plate = img[ymin:ymax, xmin:xmax, :].copy()
+    license_plate_gray = cv2.cvtColor(license_plate, cv2.COLOR_BGR2GRAY)
+    _, license_plate_thresh = cv2.threshold(license_plate_gray, 64, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
+    output = reader.readtext(license_plate_thresh)
+    
+    print(f"--- Detections for Plate #{bbox_+1} ---")
+    for out in output:
+        text_bbox, text, text_score = out
+        if text_score > 0.4:
+            print(f"Text: {text} | Confidence: {text_score:.2f}")
+
+# Plotting results safely
 plt.figure()
 plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+plt.title("Detected Frame")
 
-plt.figure()
-plt.imshow(cv2.cvtColor(license_plate, cv2.COLOR_BGR2RGB))
+if license_plate is not None:
+    plt.figure()
+    plt.imshow(cv2.cvtColor(license_plate, cv2.COLOR_BGR2RGB))
+    plt.title("Cropped Color Plate")
+
+    plt.figure()
+    plt.imshow(cv2.cvtColor(license_plate_gray, cv2.COLOR_BGR2RGB))
+    plt.title("Grayscale Plate")
+
+    plt.figure()
+    plt.imshow(cv2.cvtColor(license_plate_thresh, cv2.COLOR_BGR2RGB))
+    plt.title("Otsu Thresholded Plate")
+else:
+    print("No plates detected to display processing stages.")
 
 plt.show()
